@@ -35,6 +35,37 @@ public class GUI {
         this.title  = title;
     }
     
+    public void comput_movement(int index, List<Gcomponents> l, boolean stop)
+    {
+        if(!stop)
+        {
+            int k = l.get(index).getPx();
+
+            if(!l.get(index).getBlock_rigth() && l.get(index).getBlock_left())
+            {
+                k++; 
+                l.get(index).setPx(k);
+
+                if(k == 500){
+                    l.get(index).setBlock_right(true);
+                    l.get(index).setBlock_left(false);
+                }
+            }
+
+            if(l.get(index).getBlock_rigth() && !l.get(index).getBlock_left())
+            {
+                k--;
+                l.get(index).setPx(k);
+
+                if(k == l.get(index).getP0x()){
+                    l.get(index).setP0x(k);
+                    l.get(index).setBlock_right(false);
+                    l.get(index).setBlock_left(true);
+                }
+            }
+        }
+    }
+    
     public void create_frame(boolean visible){
         
         try{
@@ -81,32 +112,24 @@ public class GUI {
                     
                     while(true)
                     {
-                        int k = l.get(0).getPx();
-                        
-                        if(!block_right && block_left)
-                        {
-                            k++; 
-                            l.get(0).setPx(k);
-                            
-                            if(k == 500){
-                              block_right = true;
-                              block_left = false;
-                            }
-                        }
-                        
-                        if(block_right && !block_left)
-                        {
-                            k--;
-                            l.get(0).setPx(k);
-                            
-                            if(k == 0){
-                                block_right = false;
-                                block_left = true;
-                            }
-                        }
-                        
                         try {
+                            
+                            
+                            comput_movement(ID, l, false);
+                            
+                            if(l.get(ID).getPx() == l.get(ID).getP0x())
+                            {
+                                if(ID < l.size()-1){
+                                    ID++;
+                                }else
+                                {
+                                    ID--;
+                                }
+                                    
+                            }
+
                             Thread.sleep(10);
+                            
                         } catch (InterruptedException ex) {
                             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -200,7 +223,8 @@ public class GUI {
     private int posX;
     private int posY;
     private JFrame frame;
+    private static int ID = 0;
     
-    private boolean block_left = true;
-    private boolean block_right = false;
+    //private boolean block_left = true;
+    //private boolean block_right = false;
 }

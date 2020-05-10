@@ -24,9 +24,14 @@ public class Gcomponents extends JComponent{
     
     public Gcomponents(int x, int y, Color color){
         
-        this.py     = y;
-        this.px     = x;
-        this.color  = color;
+        this.py             = y;
+        this.px             = x;
+        this.p0x            = x;
+        this.p0y            = y;
+        this.color          = color;
+        this.block_left     = true;
+        this.block_right    = false;
+        this.stop           = true;
 
         this.setBounds(this.px, this.py, 10, 10);
     }
@@ -38,12 +43,36 @@ public class Gcomponents extends JComponent{
     @Override
     public void paint(Graphics graphics){
         this.setBounds(this.px, this.py, 10, 10);
-        
-        System.out.println(this.px);
         graphics.fillOval(0, 0, 10, 10);
         setForeground(this.color);
         repaint();
     }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+    
+    public boolean getStop(){
+        return this.stop;
+    }
+
+    public void setP0x(int p0x) {
+        this.p0x = p0x;
+    }
+
+    public void setP0y(int p0y) {
+        this.p0y = p0y;
+    }
+
+    public int getP0x() {
+        return p0x;
+    }
+
+    public int getP0y() {
+        return p0y;
+    }
+    
+    
 
     public void setSizeX(int sizeX) {
         this.sizeX = sizeX;
@@ -77,12 +106,30 @@ public class Gcomponents extends JComponent{
         return py;
     }
 
+    public void setBlock_left(boolean block_left) {
+        this.block_left = block_left;
+    }
+
+    public void setBlock_right(boolean block_right) {
+        this.block_right = block_right;
+    }
     
+    public boolean getBlock_left(){
+        return this.block_left;
+    }
     
-    
+    public boolean getBlock_rigth(){
+        return this.block_right;
+    }
+
     private int px;
     private int py;
+    private int p0x;
+    private int p0y;
     private Color color;
     private int sizeX;
     private int sizeY;
+    private boolean block_right;
+    private boolean block_left;
+    private boolean stop;
 }
