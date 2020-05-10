@@ -5,7 +5,6 @@
  */
 package pkg_gui;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.awt.Color;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,8 +33,17 @@ public class GUI {
         this.title  = title;
     }
     
-    public void comput_movement(int index, List<Gcomponents> l, boolean stop)
-    {
+    public void check_detect(Color c){
+        if(c == Color.RED){
+              total_detect_1++;   
+              label_detect_1.setText("Detector partícula vermelha: " + ((double)total_detect_1/(double)total_de_sorteios));
+        }else{
+            total_detect_2++;
+            label_detect_2.setText("Detector partícula preta: " + ((double)total_detect_2/(double)total_de_sorteios));
+        }
+    }
+    
+    public void comput_movement(int index, List<Gcomponents> l, boolean stop){
         if(!stop)
         {
             int k = l.get(index).getPx();
@@ -46,7 +53,9 @@ public class GUI {
                 k++; 
                 l.get(index).setPx(k);
 
-                if(k == 500){
+                if(k == 460){
+                    l.get(index).setPx(460);
+                    check_detect(l.get(index).getColor());
                     l.get(index).setBlock_right(true);
                     l.get(index).setBlock_left(false);
                 }
@@ -57,8 +66,10 @@ public class GUI {
                 k--;
                 l.get(index).setPx(k);
 
-                if(k == l.get(index).getP0x()){
-                    l.get(index).setP0x(k);
+                if(k == 0 /*l.get(index).getP0x()*/){
+                    total_de_sorteios++;
+                    l.get(index).setP0x(0);
+                    l.get(index).setPx(0);
                     l.get(index).setBlock_right(false);
                     l.get(index).setBlock_left(true);
                 }
@@ -79,13 +90,14 @@ public class GUI {
             List<Gcomponents> l = new ArrayList<>();
             
             Random r = new Random();
+            Random p = new Random();
             
             for(int i = 0; i < Main.total_particles; i++)
             {
                 int iColor = r.nextInt((1 - 0) + 1) + 0;
 
                 int x = (int)(299.0 * Math.random());
-                int y = (int)(299.0 * Math.random());
+                int y = (int)(285.0 * Math.random());
                 
                 if(iColor == 1){
                     Main.total_particles_1++;
@@ -114,21 +126,12 @@ public class GUI {
                     {
                         try {
                             
-                            
-                            comput_movement(ID, l, false);
-                            
-                            if(l.get(ID).getPx() == l.get(ID).getP0x())
+                            for(int i = 0; i < l.size(); i++)
                             {
-                                if(ID < l.size()-1){
-                                    ID++;
-                                }else
-                                {
-                                    ID--;
-                                }
-                                    
+                                comput_movement(i, l, false);
                             }
-
-                            Thread.sleep(10);
+                            
+                            Thread.sleep(5);
                             
                         } catch (InterruptedException ex) {
                             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -172,6 +175,29 @@ public class GUI {
         label_total_color_2.setBounds(10, 70, 200, 20);
         label_total_color_2.setText("Vermelhas: " + Main.total_particles_2);
         panel_menu.add(label_total_color_2);
+        
+        JPanel panel_detect = new JPanel();
+        panel_detect.setLayout(null);
+        panel_detect.setBounds(5, 100, 239, 190);
+        panel_detect.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1, true));
+        panel_detect.setBackground(new Color(250, 250, 250));
+        
+        JLabel label_detect = new JLabel();
+        label_detect.setText("Detector de partículas");
+        label_detect.setBounds(10, 10, 200, 20);
+        panel_detect.add(label_detect);
+        
+        label_detect_1 = new JLabel();
+        label_detect_1.setText("Detector partícula vermelha: " + total_detect_1);
+        label_detect_1.setBounds(10, 30, 200, 20);
+        panel_detect.add(label_detect_1);
+        
+        label_detect_2 = new JLabel();
+        label_detect_2.setText("Detector partícula preta: " + total_detect_2);
+        label_detect_2.setBounds(10, 50, 200, 20);
+        panel_detect.add(label_detect_2);
+
+        panel_menu.add(panel_detect);
         
         this.frame.getContentPane().add(panel_menu);
         
@@ -225,6 +251,9 @@ public class GUI {
     private JFrame frame;
     private static int ID = 0;
     
-    //private boolean block_left = true;
-    //private boolean block_right = false;
+    public static JLabel label_detect_1;
+    public static JLabel label_detect_2;
+    public static int total_detect_1 = 0;
+    public static int total_detect_2 = 0;
+    public static int total_de_sorteios = 0;
 }
