@@ -19,7 +19,7 @@ public class Main {
     
     public Main()
     {
-        GUI g = new GUI(800, 500, 400, 100, "Simulador LGN");
+        GUI g = new GUI(800, 700, 300, 10, "Simulador LGN");
         g.create_frame(true);
     }
     
@@ -29,7 +29,7 @@ public class Main {
         Main m = new Main();
     }
     
-    public static int total_particles = 100;
+    public static int total_particles = 130;
     public static int total_particles_1 = 0;
     public static int total_particles_2 = 0;
 }

@@ -5,18 +5,25 @@
  */
 package pkg_gui;
 
+import com.sun.corba.se.spi.activation.Server;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.awt.Color;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import org.jfree.chart.ChartPanel;
 import pkg_main.Main;
+import pkg_main.Math_Geo;
+import static sun.net.www.protocol.http.AuthCacheValue.Type.Server;
 
 /**
  *
@@ -26,6 +33,12 @@ public class GUI {
     
     public GUI(int sizeX, int sizeY, int posX, int posY, String title){
         
+        System.gc();
+        GUI.time = 0;
+        GUI.lyP = new ArrayList<>();
+        
+        GUI.lyV = new ArrayList<>();
+        
         this.sizeX  = sizeX;
         this.sizeY  = sizeY;
         this.posX   = posX;
@@ -34,104 +47,225 @@ public class GUI {
     }
     
     public void check_detect(Color c){
+        
         if(c == Color.RED){
-              total_detect_1++;   
-              label_detect_1.setText("Detector partícula vermelha: " + ((double)total_detect_1/(double)total_de_sorteios));
+
+            double dv = ((double)total_detect_1/(double)total_de_sorteios);
+            total_detect_1++;   
+            label_detect_1.setText("Detector partícula vermelha: " + dv);
+            
+            if(Double.isFinite(dv)){
+                
+                chart.getDataset().addValue(dv, "Vermelha", String.valueOf(GUI.time));
+            }
+            
         }else{
+            //GUI.time++;
+            double dp = ((double)total_detect_2/(double)total_de_sorteios);
+        
             total_detect_2++;
-            label_detect_2.setText("Detector partícula preta: " + ((double)total_detect_2/(double)total_de_sorteios));
+            label_detect_2.setText("Detector partícula preta: " + dp);
+
+            if(Double.isFinite(dp)){
+                //chart.getDataset().addValue(dp, "Preta", String.valueOf(GUI.time));
+            }
         }
     }
     
-    public void comput_movement(int index, List<Gcomponents> l, boolean stop){
+    public void comput_movement(Gcomponents g, boolean stop){
         if(!stop)
         {
-            int k = l.get(index).getPx();
+            int k = g.getPx(); //l.get(index).getPx();
 
-            if(!l.get(index).getBlock_rigth() && l.get(index).getBlock_left())
+            //if(!l.get(index).getBlock_rigth() && l.get(index).getBlock_left())
+            if(!g.getBlock_rigth() && g.getBlock_left())
             {
                 k++; 
-                l.get(index).setPx(k);
+                //l.get(index).setPx(k);
+                g.setPx(k);
 
                 if(k == 460){
-                    l.get(index).setPx(460);
-                    check_detect(l.get(index).getColor());
-                    l.get(index).setBlock_right(true);
-                    l.get(index).setBlock_left(false);
+                    g.setPx(460);
+                    //check_detect(l.get(index).getColor());
+                    check_detect(g.getColor());
+                    g.setBlock_right(true);
+                    g.setBlock_left(false);
+                    //l.get(index).setBlock_right(true);
+                    //l.get(index).setBlock_left(false);
                 }
             }
 
-            if(l.get(index).getBlock_rigth() && !l.get(index).getBlock_left())
+            //if(l.get(index).getBlock_rigth() && !l.get(index).getBlock_left())
+            if(g.getBlock_rigth() && !g.getBlock_left())
             {
                 k--;
-                l.get(index).setPx(k);
+                //l.get(index).setPx(k);
+                g.setPx(k);
 
                 if(k == 0 /*l.get(index).getP0x()*/){
                     total_de_sorteios++;
-                    l.get(index).setP0x(0);
-                    l.get(index).setPx(0);
-                    l.get(index).setBlock_right(false);
-                    l.get(index).setBlock_left(true);
+                    g.setP0x(0);
+                    g.setPx(0);
+                    g.setBlock_right(false);
+                    g.setBlock_left(true);
                 }
             }
         }
+    }
+    
+    public Gcomponents build_first(double range1, double range2){
+        
+        int x = (int)(range1 * Math.random());
+        int y = (int)(range2 * Math.random());
+        
+        Random r = new Random();
+        int c = (int) r.nextInt((1 - 0) + 1) + 0;
+        
+        if(c == 1)
+        {
+            Main.total_particles_1++;
+            Gcomponents particula = new Gcomponents(x, y, Color.BLACK);
+            return particula;
+            
+        }else
+        {
+            Main.total_particles_2++;
+            Gcomponents particula = new Gcomponents(x, y, Color.RED);
+            return particula;
+        }
+    }
+    
+    public Gcomponents build(int x, int y){
+        
+        Random r = new Random();
+        int c = (int) r.nextInt((1 - 0) + 1) + 0;
+        
+        if(c == 1)
+        {
+            Main.total_particles_1++;
+            Gcomponents particula = new Gcomponents(x, y, Color.BLACK);
+            return particula;
+            
+        }else
+        {
+            Main.total_particles_2++;
+            Gcomponents particula = new Gcomponents(x, y, Color.RED);
+            return particula;
+        }
+    }
+    
+    public void paint_particles(List<Gcomponents> list_particles, Display display){
+        list_particles.forEach((particula) -> {
+            display.getPanel().add(particula);
+        });
+    }
+    
+    public double[] check_collision(List<Gcomponents> list, double range1, double range2, int x, int y){
+        
+        boolean coolision = false;
+        double[] l = new double[2];
+        
+        Math_Geo mathGeo = new Math_Geo();        
+        
+        for(int i = 0; i < list.size(); i++){
+            
+            double r = mathGeo.r((double) x, list.get(i).getP0x(), (double) y, list.get(i).getP0y());
+            if(r < 20.0){
+                coolision = true;
+            }
+        }
+        
+        if(!coolision)
+        {
+            l[0] = x;
+            l[1] = y;
+            return l;
+            
+        }
+        
+        x = (int)(range1 * Math.random());
+        y = (int)(range2 * Math.random());
+        return check_collision(list, range1, range2, x, y);
     }
     
     public void create_frame(boolean visible){
         
         try{
+            
             this.frame = new JFrame();
             this.frame.setLayout(null);
             this.frame.setTitle(this.title);
             this.frame.setBounds(this.posX, this.posY, this.sizeX, this.sizeY);
             
-            Display display = new Display(500, 300, 10, 10, Color.WHITE, true);
+            Display display                     = new Display(500, 300, 10, 10, Color.WHITE, true);     //display
+            List<Gcomponents> list_particles    = new ArrayList<>();                                    //lista com todas as particulas
+            int ID_particula = 0;
             
-            List<Gcomponents> l = new ArrayList<>();
-            
-            Random r = new Random();
-            Random p = new Random();
-            
-            for(int i = 0; i < Main.total_particles; i++)
-            {
-                int iColor = r.nextInt((1 - 0) + 1) + 0;
-
-                int x = (int)(299.0 * Math.random());
-                int y = (int)(285.0 * Math.random());
+            //............Construcao da primeira particula..................
+            list_particles.add(build_first(400.0, 285.0));
+            ID_particula++;
+            //..............................................................
                 
-                if(iColor == 1){
-                    Main.total_particles_1++;
-                    Gcomponents g = new Gcomponents(x, y, Color.BLACK);
-                    l.add(g);
-                    display.getPanel().add(l.get(i));
-                }else{
-                    Main.total_particles_2++;
-                    Gcomponents g = new Gcomponents(x, y, Color.RED);
-                    l.add(g);
-                    display.getPanel().add(l.get(i));
+            do
+            {
+                //Condicao para a construcao das novas particulas sem interseccao
+                if(list_particles.size() > 0){
+                    
+                    int x = (int)(400.0 * Math.random());
+                    int y = (int)(285.0 * Math.random());
+        
+                    double[] par_ordenado = check_collision(list_particles, 400.0, 285.0, x, y);
+                    list_particles.add(build((int) par_ordenado[0], (int) par_ordenado[1]));
+                    ID_particula++;
                 }
-            }
-
+            
+            }while(ID_particula < Main.total_particles);
+                    
+            paint_particles(list_particles, display);
+            
             create_panel();
+            
+            chart = new Chart_LNG();
+            cpanel = chart.create_chart("Gráfico de convergência", 500, 300);
+            cpanel.setBounds(10, 330, 500, 300);
+            
+            this.frame.getContentPane().add(cpanel);
             
             this.frame.getContentPane().add(display.getPanel());
             this.frame.setVisible(visible);
             this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            
+
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     
                     while(true)
-                    {
+                    {       
+                        GUI.time++;
                         try {
                             
-                            for(int i = 0; i < l.size(); i++)
-                            {
-                                comput_movement(i, l, false);
-                            }
+                            list_particles.parallelStream().forEach(particula -> {
+                                
+                                
+                                /*l.parallelStream().forEach(colisao -> {
+                                    
+                                    if(particula != colisao)
+                                    {
+                                        
+                                    }
+                                });*/
+                                comput_movement(particula, false);
+                                
+                            });
                             
-                            Thread.sleep(5);
+                            if(cpanel != null){
+                                    cpanel.updateUI();
+                                    cpanel.repaint();
+                                    
+                                }
+                            System.gc();
+                            
+                            Thread.sleep(10);
                             
                         } catch (InterruptedException ex) {
                             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -256,4 +390,13 @@ public class GUI {
     public static int total_detect_1 = 0;
     public static int total_detect_2 = 0;
     public static int total_de_sorteios = 0;
+    
+    public static ChartPanel cpanel;
+    public static Chart_LNG chart;
+    
+    public static List<Double> lyP;
+    
+    public static List<Double> lyV;
+    
+    public static int time;
 }

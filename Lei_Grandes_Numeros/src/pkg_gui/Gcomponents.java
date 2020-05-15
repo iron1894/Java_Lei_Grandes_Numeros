@@ -5,16 +5,9 @@
  */
 package pkg_gui;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.Random;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import pkg_main.Main;
 
 /**
  *
@@ -72,8 +65,6 @@ public class Gcomponents extends JComponent{
         return p0y;
     }
     
-    
-
     public void setSizeX(int sizeX) {
         this.sizeX = sizeX;
     }
