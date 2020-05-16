@@ -73,28 +73,22 @@ public class GUI {
             if(!g.getBlock_rigth() && g.getBlock_left())
             {
                 k++; 
-                //l.get(index).setPx(k);
                 g.setPx(k);
 
                 if(k == 460){
                     g.setPx(460);
-                    //check_detect(l.get(index).getColor());
                     check_detect(g.getColor());
                     g.setBlock_right(true);
                     g.setBlock_left(false);
-                    //l.get(index).setBlock_right(true);
-                    //l.get(index).setBlock_left(false);
                 }
             }
 
-            //if(l.get(index).getBlock_rigth() && !l.get(index).getBlock_left())
             if(g.getBlock_rigth() && !g.getBlock_left())
             {
                 k--;
-                //l.get(index).setPx(k);
                 g.setPx(k);
 
-                if(k == 0 /*l.get(index).getP0x()*/){
+                if(k == 0){
                     total_de_sorteios++;
                     g.setP0x(0);
                     g.setPx(0);
@@ -218,8 +212,8 @@ public class GUI {
             create_panel();
             
             chart = new Chart_LNG();
-            cpanel = chart.create_chart("Gráfico de convergência", 500, 300);
-            cpanel.setBounds(10, 330, 500, 300);
+            cpanel = chart.create_chart("Gráfico de convergência", 760, 300);
+            cpanel.setBounds(10, 330, 760, 300);
             
             this.frame.getContentPane().add(cpanel);
             
