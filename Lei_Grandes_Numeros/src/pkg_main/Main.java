@@ -29,7 +29,7 @@ public class Main {
         Main m = new Main();
     }
     
-    public static int total_particles = 50;
+    public static int total_particles = 10;
     public static int total_particles_1 = 0;
     public static int total_particles_2 = 0;
 }

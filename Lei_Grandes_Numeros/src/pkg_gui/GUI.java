@@ -5,14 +5,11 @@
  */
 package pkg_gui;
 
-import com.sun.corba.se.spi.activation.Server;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.awt.Color;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -48,11 +45,12 @@ public class GUI {
         
         if(c == Color.RED){
 
-            double dv = ((double)total_detect_1/(double)total_de_sorteios);
+            dv = ((double)total_detect_1/(double)total_de_sorteios);
             total_detect_1++;   
-            label_detect_1.setText("Detector partícula vermelha: " + (dv * Main.total_particles));
+            label_detect_1.setText("Vermelha: " + (dv * Main.total_particles));
             
             if(Double.isFinite(dv)){
+                
                 chart.getDataset().addValue(dv, "Vermelha", String.valueOf(GUI.time));
             }
             
@@ -60,7 +58,7 @@ public class GUI {
             
             double dp = ((double)total_detect_2/(double)total_de_sorteios);        
             total_detect_2++;
-            label_detect_2.setText("Detector partícula preta: " + (dp * Main.total_particles));
+            label_detect_2.setText("Preta: " + (dp * Main.total_particles));
         }
     }
     
@@ -235,13 +233,9 @@ public class GUI {
                                 comput_movement(particula, false);
                             }
 
-                            if(cpanel != null){
-                                cpanel.updateUI();
-                                cpanel.repaint();
-                            }
                             System.gc();
                             
-                            Thread.sleep(2);
+                            Thread.sleep(10);
                             
                         } catch (InterruptedException ex) {
                             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
@@ -250,8 +244,7 @@ public class GUI {
                 }
             });
             t.start();
-            
-            
+
         }catch(HeadlessException e)
         {
             System.err.println(e.toString());
@@ -366,6 +359,7 @@ public class GUI {
     public static int total_detect_1 = 0;
     public static int total_detect_2 = 0;
     public static int total_de_sorteios = 0;
+    public static double dv;
     
     public static ChartPanel cpanel;
     public static Chart_LNG chart;
