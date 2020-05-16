@@ -15,7 +15,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,7 +22,6 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import pkg_main.Main;
 import pkg_main.Math_Geo;
-import static sun.net.www.protocol.http.AuthCacheValue.Type.Server;
 
 /**
  *
@@ -52,30 +50,24 @@ public class GUI {
 
             double dv = ((double)total_detect_1/(double)total_de_sorteios);
             total_detect_1++;   
-            label_detect_1.setText("Detector partícula vermelha: " + dv);
+            label_detect_1.setText("Detector partícula vermelha: " + (dv * Main.total_particles));
             
             if(Double.isFinite(dv)){
-                
                 chart.getDataset().addValue(dv, "Vermelha", String.valueOf(GUI.time));
             }
             
         }else{
-            //GUI.time++;
-            double dp = ((double)total_detect_2/(double)total_de_sorteios);
-        
+            
+            double dp = ((double)total_detect_2/(double)total_de_sorteios);        
             total_detect_2++;
-            label_detect_2.setText("Detector partícula preta: " + dp);
-
-            if(Double.isFinite(dp)){
-                //chart.getDataset().addValue(dp, "Preta", String.valueOf(GUI.time));
-            }
+            label_detect_2.setText("Detector partícula preta: " + (dp * Main.total_particles));
         }
     }
     
     public void comput_movement(Gcomponents g, boolean stop){
         if(!stop)
         {
-            int k = g.getPx(); //l.get(index).getPx();
+            int k = g.getPx();
 
             //if(!l.get(index).getBlock_rigth() && l.get(index).getBlock_left())
             if(!g.getBlock_rigth() && g.getBlock_left())
@@ -244,28 +236,18 @@ public class GUI {
                         GUI.time++;
                         try {
                             
-                            list_particles.parallelStream().forEach(particula -> {
-                                
-                                
-                                /*l.parallelStream().forEach(colisao -> {
-                                    
-                                    if(particula != colisao)
-                                    {
-                                        
-                                    }
-                                });*/
+                            for(Gcomponents particula : list_particles)
+                            {
                                 comput_movement(particula, false);
-                                
-                            });
-                            
+                            }
+
                             if(cpanel != null){
-                                    cpanel.updateUI();
-                                    cpanel.repaint();
-                                    
-                                }
+                                cpanel.updateUI();
+                                cpanel.repaint();
+                            }
                             System.gc();
                             
-                            Thread.sleep(10);
+                            Thread.sleep(2);
                             
                         } catch (InterruptedException ex) {
                             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
